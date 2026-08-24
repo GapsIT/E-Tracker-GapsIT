@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}GapsIT Core{% endblock %}</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --panel-border: #262b35;
+    --accent: #4f7cff;
+    --accent-hover: #3d67e6;
+    --text: #e8eaf0;
+    --text-dim: #9aa1b0;
+    --error: #ff5a6b;
+    --success: #34c77b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at top, #1b2030 0%, var(--bg) 60%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    padding: 24px;
+  }
+  .card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    padding: 36px 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  }
+  .card.wide { max-width: 560px; }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .brand-mark {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px; color: white;
+  }
+  .brand-name { font-weight: 600; font-size: 15px; letter-spacing: 0.3px; }
+  h1 {
+    font-size: 22px;
+    margin: 0 0 6px;
+    font-weight: 600;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin: 0 0 26px;
+  }
+  form { display: flex; flex-direction: column; gap: 14px; }
+  .form-row { display: flex; flex-direction: column; gap: 6px; }
+  .form-row.two-col { flex-direction: row; gap: 12px; }
+  .form-row.two-col > div { flex: 1; }
+  label { font-size: 13px; color: var(--text-dim); }
+  .form-input, input[type=text], input[type=password], input[type=email],
+  input[type=number], input[type=date], textarea {
+    width: 100%;
+    background: #10131a;
+    border: 1px solid var(--panel-border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 11px 13px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus, input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; }
+  button.btn-primary {
+    margin-top: 8px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button.btn-primary:hover { background: var(--accent-hover); }
+  .foot-link {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 13.5px;
+    color: var(--text-dim);
+  }
+  .foot-link a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .foot-link a:hover { text-decoration: underline; }
+  .errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: var(--error);
+    font-size: 12.5px;
+  }
+  .alert {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    margin-bottom: 16px;
+  }
+  .alert-error { background: rgba(255, 90, 107, 0.12); color: var(--error); border: 1px solid rgba(255,90,107,0.25); }
+  .alert-success { background: rgba(52, 199, 123, 0.12); color: var(--success); border: 1px solid rgba(52,199,123,0.25); }
+  .field-error { color: var(--error); font-size: 12px; margin-top: -2px; }
+</style>
+</head>
+<body>
+  <div class="card {% block card_class %}{% endblock %}">
+    <div class="brand">
+      <div class="brand-mark">G</div>
+      <div class="brand-name">GapsIT Core</div>
+    </div>
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

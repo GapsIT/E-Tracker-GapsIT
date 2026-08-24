@@ -1,0 +1,71 @@
+{% extends "employees/base.html" %}
+{% block title %}Create account · GapsIT Core{% endblock %}
+{% block card_class %}wide{% endblock %}
+{% block content %}
+  <h1>Create your account</h1>
+  <p class="subtitle">Anyone can register. You'll start as a regular user &mdash; an admin can promote you to employee later.</p>
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-error">
+      {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" action="{% url 'register' %}">
+    {% csrf_token %}
+
+    <div class="form-row">
+      <label for="{{ form.name.id_for_label }}">Full name</label>
+      {{ form.name }}
+      {% if form.name.errors %}<div class="field-error">{{ form.name.errors.0 }}</div>{% endif %}
+    </div>
+
+    <div class="form-row two-col">
+      <div>
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username }}
+        {% if form.username.errors %}<div class="field-error">{{ form.username.errors.0 }}</div>{% endif %}
+      </div>
+      <div>
+        <label for="{{ form.email.id_for_label }}">Email</label>
+        {{ form.email }}
+        {% if form.email.errors %}<div class="field-error">{{ form.email.errors.0 }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-row two-col">
+      <div>
+        <label for="{{ form.password1.id_for_label }}">Password</label>
+        {{ form.password1 }}
+      </div>
+      <div>
+        <label for="{{ form.password2.id_for_label }}">Confirm password</label>
+        {{ form.password2 }}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="{{ form.phone.id_for_label }}">Phone number <span style="opacity:.6;">(optional)</span></label>
+      {{ form.phone }}
+      {% if form.phone.errors %}<div class="field-error">{{ form.phone.errors.0 }}</div>{% endif %}
+    </div>
+
+    <div class="form-row">
+      <label for="{{ form.address.id_for_label }}">Address <span style="opacity:.6;">(optional)</span></label>
+      {{ form.address }}
+      {% if form.address.errors %}<div class="field-error">{{ form.address.errors.0 }}</div>{% endif %}
+    </div>
+
+    {% if form.non_field_errors %}
+      <ul class="errorlist">
+        {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <button type="submit" class="btn-primary">Create account</button>
+  </form>
+
+  <div class="foot-link">
+    Already have an account? <a href="{% url 'login' %}">Sign in</a>
+  </div>
+{% endblock %}

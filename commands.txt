@@ -1,0 +1,17 @@
+
+:: 1. Activate the virtual environment
+MyEnv\Scripts\activate
+
+:: 2. Make sure MySQL driver + all deps are installed (should already be, but just in case)
+pip install -r requirements.txt
+
+:: 3. Create the tables in your gapsit_core MySQL database
+python manage.py migrate
+
+:: 4. Create your admin login
+python manage.py createsuperuser
+
+:: 5. Start the dev server
+python manage.py runserver
+
+

@@ -62,6 +62,11 @@ DATABASES = {
         "PASSWORD": config("DB_PASSWORD", default=""),
         "HOST": config("DB_HOST", default=""),
         "PORT": config("DB_PORT", default=""),
+        "OPTIONS": (
+            {"charset": "utf8mb4"}
+            if config("DB_ENGINE", default="django.db.backends.sqlite3") == "django.db.backends.mysql"
+            else {}
+        ),
     }
 }
 
@@ -119,3 +124,8 @@ CORS_ALLOWED_ORIGINS = [
 
 # Admin API Key for external services
 ADMIN_API_KEY = config("ADMIN_API_KEY", default="change-this-secure-key")
+
+# Browser-facing session auth pages (see apps/employees/urls.py)
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "dashboard"
+LOGOUT_REDIRECT_URL = "login"

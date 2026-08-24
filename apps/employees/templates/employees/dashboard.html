@@ -1,0 +1,24 @@
+{% extends "employees/base.html" %}
+{% block title %}Dashboard · GapsIT Core{% endblock %}
+{% block content %}
+  <h1>Welcome{% if employee %}, {{ employee.name }}{% else %}, {{ user.username }}{% endif %}</h1>
+  <p class="subtitle">You're signed in to GapsIT Core.</p>
+
+  {% if employee %}
+    <div class="form-row"><label>Role</label><div>{{ employee.get_role_display }}</div></div>
+    {% if employee.phone %}<div class="form-row"><label>Phone</label><div>{{ employee.phone }}</div></div>{% endif %}
+    {% if employee.role == "user" %}
+      <p class="subtitle" style="margin-top:6px;">You're a regular user. Ask an admin to promote you to employee if you need employee access.</p>
+    {% else %}
+      <div class="form-row"><label>Position</label><div>{{ employee.position }}</div></div>
+      <div class="form-row"><label>Joined</label><div>{{ employee.join_date }}</div></div>
+    {% endif %}
+  {% else %}
+    <p>No employee profile is linked to this account yet.</p>
+  {% endif %}
+
+  <form method="post" action="{% url 'logout' %}" style="margin-top: 22px;">
+    {% csrf_token %}
+    <button type="submit" class="btn-primary">Log out</button>
+  </form>
+{% endblock %}
