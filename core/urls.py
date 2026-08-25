@@ -3,6 +3,7 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from apps.employees.views import CustomTokenObtainPairView
 from apps.employees.urls import auth_page_urlpatterns
+from apps.allowlist.urls import allowlist_page_urlpatterns
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -13,6 +14,12 @@ urlpatterns = [
     path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     # Employee CRUD API endpoints
     path("api/", include("apps.employees.urls")),
+    # Allowed-apps (GapsSight on-task allow-list) CRUD + sync API endpoints
+    path("api/", include("apps.allowlist.urls")),
+    # Session/gate-check/status-change backup sync API endpoints
+    path("api/", include("apps.activity.urls")),
     # Browser-facing login / register / dashboard pages
     path("accounts/", include(auth_page_urlpatterns)),
+    # Browser-facing admin page for managing the allow-list
+    path("accounts/", include(allowlist_page_urlpatterns)),
 ]

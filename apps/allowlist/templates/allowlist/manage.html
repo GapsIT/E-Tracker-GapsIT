@@ -1,0 +1,95 @@
+{% extends "employees/base.html" %}
+{% block title %}Allowed Apps · GapsIT Core{% endblock %}
+{% block card_class %}xwide{% endblock %}
+{% block content %}
+  <div class="top-nav">
+    <h1 style="margin:0;">Allowed apps</h1>
+    <a href="{% url 'dashboard' %}">&larr; Dashboard</a>
+  </div>
+  <p class="subtitle">
+    Entries here are what GapsSight treats as "on task": a VS Code window on
+    an allowed project, or a supported browser on an allowed tab. Every
+    connected desktop app pulls the active (enabled) entries below the next
+    time it syncs — no rebuild or manual file edit needed.
+  </p>
+
+  <h2 class="section-title">Add an entry</h2>
+  <form method="post" class="add-form-row">
+    {% csrf_token %}
+    <div class="form-row">
+      <label for="{{ form.kind.id_for_label }}">Type</label>
+      {{ form.kind }}
+    </div>
+    <div class="form-row">
+      <label for="{{ form.value.id_for_label }}">Value (matched as substring, case-insensitive)</label>
+      {{ form.value }}
+    </div>
+    <button type="submit" class="btn-primary">Add</button>
+  </form>
+  {% if form.errors %}
+    <ul class="errorlist">
+      {% for field in form %}{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}{% endfor %}
+      {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+
+  <h2 class="section-title">VS Code projects</h2>
+  <table class="entry-table">
+    <thead>
+      <tr><th>Project</th><th>Status</th><th>Added by</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for entry in vscode_entries %}
+        <tr>
+          <td>{{ entry.value }}</td>
+          <td><span class="badge {% if entry.is_active %}badge-active{% else %}badge-inactive{% endif %}">{% if entry.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+          <td>{{ entry.created_by.username|default:"—" }}</td>
+          <td>
+            <div class="row-actions">
+              <form method="post" action="{% url 'toggle_allowed_app' entry.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-link">{% if entry.is_active %}Disable{% else %}Enable{% endif %}</button>
+              </form>
+              <form method="post" action="{% url 'delete_allowed_app' entry.pk %}" onsubmit="return confirm('Delete \'{{ entry.value }}\'?');">
+                {% csrf_token %}
+                <button type="submit" class="btn-link danger">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr class="empty-row"><td colspan="4">No VS Code projects yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2 class="section-title">Browser tabs</h2>
+  <table class="entry-table">
+    <thead>
+      <tr><th>Tab title</th><th>Status</th><th>Added by</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for entry in browser_entries %}
+        <tr>
+          <td>{{ entry.value }}</td>
+          <td><span class="badge {% if entry.is_active %}badge-active{% else %}badge-inactive{% endif %}">{% if entry.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+          <td>{{ entry.created_by.username|default:"—" }}</td>
+          <td>
+            <div class="row-actions">
+              <form method="post" action="{% url 'toggle_allowed_app' entry.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-link">{% if entry.is_active %}Disable{% else %}Enable{% endif %}</button>
+              </form>
+              <form method="post" action="{% url 'delete_allowed_app' entry.pk %}" onsubmit="return confirm('Delete \'{{ entry.value }}\'?');">
+                {% csrf_token %}
+                <button type="submit" class="btn-link danger">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr class="empty-row"><td colspan="4">No browser tabs yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

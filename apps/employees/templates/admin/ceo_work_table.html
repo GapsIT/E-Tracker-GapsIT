@@ -1,0 +1,126 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+  .gap-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin: 18px 0 24px;
+  }
+  .gap-card {
+    background: var(--darkened-bg);
+    border: 1px solid var(--hairline-color);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .gap-card .num { font-size: 26px; font-weight: 700; color: var(--body-loud-color); line-height: 1.15; }
+  .gap-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--body-quiet-color); margin-top: 4px; }
+
+  .gap-range-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+  .gap-range-tabs a {
+    padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    text-decoration: none; border: 1px solid var(--border-color); color: var(--link-fg);
+  }
+  .gap-range-tabs a.active { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+
+  .gap-chart-wrap { background: var(--darkened-bg); border: 1px solid var(--hairline-color); border-radius: 10px; padding: 18px; margin-bottom: 26px; }
+
+  table.gap-work-table { width: 100%; border-collapse: collapse; }
+  table.gap-work-table th, table.gap-work-table td { padding: 9px 10px; border-bottom: 1px solid var(--hairline-color); text-align: left; font-size: 13px; }
+  table.gap-work-table th { text-transform: uppercase; font-size: 11px; letter-spacing: .04em; color: var(--body-quiet-color); }
+  table.gap-work-table tbody tr:hover { background: var(--darkened-bg); }
+
+  .gap-badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .gap-badge-role-admin { background: #3b2f6b; color: #d9c8ff; }
+  .gap-badge-role-employee { background: #14432e; color: #7fe3ab; }
+  .gap-badge-role-user { background: #333; color: #ccc; }
+  .gap-badge-good { background: #14432e; color: #7fe3ab; }
+  .gap-badge-mid { background: #4a3c12; color: #f5d97a; }
+  .gap-badge-low { background: #4a1616; color: #ff9b9b; }
+  .gap-badge-none { background: var(--darkened-bg); color: var(--body-quiet-color); border: 1px solid var(--border-color); }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>👔 CEO Work Table</h1>
+<p>{{ range_label }} &middot; work totals per employee, pulled straight from synced GapsSight activity sessions.</p>
+
+<div class="gap-range-tabs">
+  <a href="?range=today" class="{% if range_key == 'today' %}active{% endif %}">Today</a>
+  <a href="?range=week" class="{% if range_key == 'week' %}active{% endif %}">Last 7 days</a>
+  <a href="?range=month" class="{% if range_key == 'month' %}active{% endif %}">Last 30 days</a>
+</div>
+
+<div class="gap-stats-grid">
+  <div class="gap-card"><div class="num">{{ summary.total_accounts }}</div><div class="label">Total Accounts</div></div>
+  <div class="gap-card"><div class="num">{{ summary.total_employees }}</div><div class="label">Employees</div></div>
+  <div class="gap-card"><div class="num">{{ summary.total_users }}</div><div class="label">Plain Users</div></div>
+  <div class="gap-card"><div class="num">{{ summary.total_admins }}</div><div class="label">Admins</div></div>
+  <div class="gap-card"><div class="num">{{ summary.people_active_today }}</div><div class="label">Active Today</div></div>
+  <div class="gap-card"><div class="num">{{ summary.active_today_fmt }}</div><div class="label">Active Hours Today</div></div>
+</div>
+
+<div class="gap-chart-wrap">
+  <canvas id="gapWorkChart" height="90"></canvas>
+</div>
+
+<table class="gap-work-table">
+  <thead>
+    <tr>
+      <th>Employee</th>
+      <th>Role</th>
+      <th>Position</th>
+      <th>Sessions</th>
+      <th>Active</th>
+      <th>AFK</th>
+      <th>Blocked</th>
+      <th>Productivity</th>
+      <th>Last Session</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    <tr>
+      <td>{{ row.employee.name }}</td>
+      <td><span class="gap-badge gap-badge-role-{{ row.employee.role }}">{{ row.employee.get_role_display }}</span></td>
+      <td>{{ row.employee.position|default:"—" }}</td>
+      <td>{{ row.sessions }}</td>
+      <td>{{ row.active_fmt }}</td>
+      <td>{{ row.afk_fmt }}</td>
+      <td>{{ row.blocked_fmt }}</td>
+      <td>
+        {% if row.productivity is not None %}
+          <span class="gap-badge {% if row.productivity >= 70 %}gap-badge-good{% elif row.productivity >= 40 %}gap-badge-mid{% else %}gap-badge-low{% endif %}">{{ row.productivity }}%</span>
+        {% else %}
+          <span class="gap-badge gap-badge-none">No data</span>
+        {% endif %}
+      </td>
+      <td>{{ row.last_session|date:"M j, H:i"|default:"—" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="9">No employees on the roster yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+  new Chart(document.getElementById('gapWorkChart'), {
+    type: 'bar',
+    data: {
+      labels: {{ chart_labels|safe }},
+      datasets: [
+        { label: 'Active hours', data: {{ chart_active|safe }}, backgroundColor: '#417690' },
+        { label: 'AFK hours', data: {{ chart_afk|safe }}, backgroundColor: '#f5dd5d' }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'top' }, title: { display: true, text: '{{ range_label }} — top active employees' } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'Hours' } } }
+    }
+  });
+</script>
+{% endblock %}

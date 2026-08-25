@@ -1,0 +1,105 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">
+<style>
+  .gap-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 6px 0 22px;
+  }
+  .gap-card {
+    background: var(--darkened-bg);
+    border: 1px solid var(--hairline-color);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .gap-card .num { font-size: 24px; font-weight: 700; color: var(--body-loud-color); line-height: 1.15; }
+  .gap-card .label { font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--body-quiet-color); margin-top: 4px; }
+  .gap-dashboard-panel { margin-bottom: 28px; }
+  .gap-dashboard-panel h2 { display:flex; align-items:center; justify-content:space-between; }
+  .gap-dashboard-panel h2 a { font-size: 12.5px; font-weight: 600; }
+  .gap-chart-wrap { background: var(--darkened-bg); border: 1px solid var(--hairline-color); border-radius: 10px; padding: 14px; }
+</style>
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block nav-sidebar %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+  {% if gapsit_dashboard %}
+  <div class="module gap-dashboard-panel">
+    <h2>
+      <span>📊 Today at a glance</span>
+      <a href="{% url 'admin:ceo-work-table' %}">Open full CEO Work Table &rarr;</a>
+    </h2>
+    <div class="gap-stats-grid">
+      <div class="gap-card"><div class="num">{{ gapsit_dashboard.total_accounts }}</div><div class="label">Total Accounts</div></div>
+      <div class="gap-card"><div class="num">{{ gapsit_dashboard.total_employees }}</div><div class="label">Employees</div></div>
+      <div class="gap-card"><div class="num">{{ gapsit_dashboard.total_users }}</div><div class="label">Plain Users</div></div>
+      <div class="gap-card"><div class="num">{{ gapsit_dashboard.total_admins }}</div><div class="label">Admins</div></div>
+      <div class="gap-card"><div class="num">{{ gapsit_dashboard.people_active_today }}</div><div class="label">Active Today</div></div>
+      <div class="gap-card"><div class="num">{{ gapsit_dashboard.active_today_fmt }}</div><div class="label">Active Hours Today</div></div>
+    </div>
+    {% if gapsit_dashboard.chart_labels != "[]" %}
+    <div class="gap-chart-wrap">
+      <canvas id="gapHomeChart" height="70"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script>
+      new Chart(document.getElementById('gapHomeChart'), {
+        type: 'bar',
+        data: {
+          labels: {{ gapsit_dashboard.chart_labels|safe }},
+          datasets: [{ label: 'Active hours today', data: {{ gapsit_dashboard.chart_active_hours|safe }}, backgroundColor: '#417690' }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+    </script>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>{% translate 'Recent actions' %}</h2>
+        <h3>{% translate 'My actions' %}</h3>
+            {% load log %}
+            {% get_admin_log 10 as admin_log for_user user %}
+            {% if not admin_log %}
+            <p>{% translate 'None available' %}</p>
+            {% else %}
+            <ul class="actionlist">
+            {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+                {% if entry.is_deletion or not entry.get_admin_url %}
+                    {{ entry.object_repr }}
+                {% else %}
+                    <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                {% endif %}
+                <br>
+                {% if entry.content_type %}
+                    <span class="mini quiet">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
+                {% else %}
+                    <span class="mini quiet">{% translate 'Unknown content' %}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -19,6 +19,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "corsheaders",
     "apps.employees",
+    "apps.allowlist",
+    "apps.activity",
 ]
 
 MIDDLEWARE = [
@@ -38,7 +40,13 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        # Project-level template dir -- only used for our admin/index.html and
+        # admin/base_site.html overrides (see templates/admin/). The
+        # filesystem loader (this DIRS list) is checked before the
+        # app_directories loader, so these two files safely take priority
+        # over django.contrib.admin's built-ins without touching any other
+        # app's templates.
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -46,6 +54,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                # Feeds the "beautiful" stats/chart cards on the admin
+                # homepage only -- see apps/employees/context_processors.py.
+                "apps.employees.context_processors.gapsit_admin_dashboard",
             ],
         },
     },

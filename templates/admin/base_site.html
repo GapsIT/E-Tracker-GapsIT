@@ -1,0 +1,23 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('GapsIT Core Admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+  <a href="{% url 'admin:index' %}">🛰️ {{ site_header|default:_('GapsIT Core Admin') }}</a>
+</h1>
+{% if user.is_anonymous %}
+  {% include "admin/color_theme_toggle.html" %}
+{% endif %}
+{% endblock %}
+
+{% block nav-global %}
+{% if request.user.is_staff %}
+<div style="padding:4px 0;">
+  <a href="{% url 'admin:ceo-work-table' %}" style="color: var(--header-link-color); font-weight: 600; text-decoration: none; font-size: 13px;">
+    👔 CEO Work Table
+  </a>
+</div>
+{% endif %}
+{% endblock %}
