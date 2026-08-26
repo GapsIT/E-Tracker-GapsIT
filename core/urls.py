@@ -4,6 +4,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from apps.employees.views import CustomTokenObtainPairView
 from apps.employees.urls import auth_page_urlpatterns
 from apps.allowlist.urls import allowlist_page_urlpatterns
+from apps.releases.urls import release_page_urlpatterns
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -22,4 +23,7 @@ urlpatterns = [
     path("accounts/", include(auth_page_urlpatterns)),
     # Browser-facing admin page for managing the allow-list
     path("accounts/", include(allowlist_page_urlpatterns)),
+    # GapsSight client download links -- only reachable once logged in,
+    # right after /accounts/login/ (see apps/releases/).
+    path("accounts/", include(release_page_urlpatterns)),
 ]

@@ -9,4 +9,5 @@ media/
 .DS_Store
 Lib/
 Myenv/
+releases_files/*.rar
 

@@ -25,6 +25,28 @@
     </p>
   {% endif %}
 
+  <h2 class="section-title">Download GapsSight</h2>
+  <p class="subtitle" style="margin-bottom: 14px;">
+    {% if gapsight_recommended_platform == "linux" %}
+      We detected you're on Linux &mdash; here's the matching build.
+    {% else %}
+      We detected you're on Windows &mdash; here's the matching build.
+    {% endif %}
+    Each download link works once and expires shortly after, so grab the file right after you click.
+  </p>
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <a href="{% url 'gapsight_download_request' 'windows' %}"
+       class="btn-primary"
+       style="text-decoration:none; display:inline-block; text-align:center; {% if gapsight_recommended_platform != 'windows' %}background:transparent; border:1px solid var(--panel-border); color: var(--text);{% endif %}">
+      Download for Windows
+    </a>
+    <a href="{% url 'gapsight_download_request' 'linux' %}"
+       class="btn-primary"
+       style="text-decoration:none; display:inline-block; text-align:center; {% if gapsight_recommended_platform != 'linux' %}background:transparent; border:1px solid var(--panel-border); color: var(--text);{% endif %}">
+      Download for Linux
+    </a>
+  </div>
+
   <form method="post" action="{% url 'logout' %}" style="margin-top: 22px;">
     {% csrf_token %}
     <button type="submit" class="btn-primary">Log out</button>

@@ -300,5 +300,11 @@ def logout_view(request):
 @login_required(login_url="login")
 def dashboard_view(request):
     """A minimal landing page after login, showing the employee's own profile."""
+    from apps.releases.utils import detect_platform
+
     employee = getattr(request.user, "employee", None)
-    return render(request, "employees/dashboard.html", {"employee": employee})
+    return render(
+        request,
+        "employees/dashboard.html",
+        {"employee": employee, "gapsight_recommended_platform": detect_platform(request)},
+    )

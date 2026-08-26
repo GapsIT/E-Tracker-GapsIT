@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     "apps.employees",
     "apps.allowlist",
     "apps.activity",
+    "apps.releases",
 ]
 
 MIDDLEWARE = [
@@ -142,3 +143,27 @@ ADMIN_API_KEY = config("ADMIN_API_KEY", default="change-this-secure-key")
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "login"
+
+# ----------------------------------------------------------------------
+# GapsSight client downloads (see apps/releases/) -- one-time-use download
+# links offered on the dashboard right after a normal user logs in.
+# ----------------------------------------------------------------------
+
+# Folder on the server holding the actual installer files. Not part of the
+# git repo (they're large binaries) -- upload/rsync them here separately,
+# using exactly the filenames below. Override with the env var if you'd
+# rather keep them somewhere else on disk.
+GAPSIGHT_RELEASES_DIR = config(
+    "GAPSIGHT_RELEASES_DIR", default=str(BASE_DIR / "releases_files")
+)
+
+GAPSIGHT_RELEASES = {
+    "windows": {"filename": "GapsSight_Windows_0.1.rar", "label": "Windows"},
+    "linux": {"filename": "GapsSight_Linux_0.1.rar", "label": "Linux"},
+}
+
+# How long a generated download link stays valid before it expires (it's
+# also invalidated immediately after its one use, whichever comes first).
+GAPSIGHT_DOWNLOAD_TOKEN_MINUTES = config(
+    "GAPSIGHT_DOWNLOAD_TOKEN_MINUTES", default=10, cast=int
+)
